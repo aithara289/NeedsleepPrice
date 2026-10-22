@@ -16,7 +16,7 @@ app.use(helmet({contentSecurityPolicy:{directives:{defaultSrc:["'self'"],scriptS
 app.use(express.json({limit:'30kb'}));
 app.use(session({store:new (connectPgSimple(session))({pool,createTableIfMissing:true}),name:'needshop.sid',secret:process.env.SESSION_SECRET,resave:false,saveUninitialized:false,cookie:{httpOnly:true,sameSite:'lax',secure:prod,maxAge:1000*60*60*8}}));
 app.use('/api',rateLimit({windowMs:15*60*1000,limit:180,standardHeaders:'draft-7',legacyHeaders:false}));
-app.use(express.static('public',{index:'index.html',maxAge:0}));
+app.use(express.static({index:'index.html',maxAge:0}));
 const packs=[{echoes:66,price:30},{echoes:203,price:90},{echoes:335,price:145},{echoes:759,price:290},{echoes:2227,price:870},{echoes:3663,price:1450},{echoes:7249,price:2890}];
 // Unbounded knapsack: least cost to reach >= requested, then least overfill.
 function calculate(requested){if(!Number.isSafeInteger(requested)||requested<1||requested>100000)throw Error('จำนวน Echoes ต้องอยู่ระหว่าง 1–100,000');const limit=requested+7249,dp=new Float64Array(limit+1).fill(Infinity),choice=new Int8Array(limit+1).fill(-1);dp[0]=0;let best=Infinity,at=-1;for(let i=1;i<=limit;i++){for(let j=0;j<packs.length;j++){let p=packs[j];if(i>=p.echoes&&dp[i-p.echoes]+p.price<dp[i]){dp[i]=dp[i-p.echoes]+p.price;choice[i]=j}}if(i>=requested&&(dp[i]<best||(dp[i]===best&&(at===-1||i<at)))){best=dp[i];at=i}}let counts=Array(packs.length).fill(0),left=at;while(left>0){const j=choice[left];if(j<0)throw Error('Calculation error');counts[j]++;left-=packs[j].echoes}return {requested,echoes:at,total:best,packs:packs.map((p,i)=>({...p,count:counts[i]})).filter(p=>p.count)};}
