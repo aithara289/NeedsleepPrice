@@ -16,7 +16,7 @@ app.use(helmet({contentSecurityPolicy:{directives:{defaultSrc:["'self'"],scriptS
 app.use(express.json({limit:'30kb'}));
 app.use(session({store:new (connectPgSimple(session))({pool,createTableIfMissing:true}),name:'needshop.sid',secret:process.env.SESSION_SECRET,resave:false,saveUninitialized:false,cookie:{httpOnly:true,sameSite:'lax',secure:prod,maxAge:1000*60*60*8}}));
 app.use('/api',rateLimit({windowMs:15*60*1000,limit:180,standardHeaders:'draft-7',legacyHeaders:false}));
-app.use(express.static('.', {
+app.use(express.static('public', {
   index: 'index.html',
   maxAge: 0
 }));
