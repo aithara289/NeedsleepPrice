@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import bcrypt from 'bcryptjs';
-import {pool,migrate} from '../db.js';
+import {pool,migrate} from './db.js';
 const email=process.env.ADMIN_EMAIL?.trim().toLowerCase(),password=process.env.ADMIN_PASSWORD;
 if(!email||!email.includes('@')||!password||password.length<14)throw Error('Set ADMIN_EMAIL and ADMIN_PASSWORD (14+ chars)');
 await migrate();const hash=await bcrypt.hash(password,12);
